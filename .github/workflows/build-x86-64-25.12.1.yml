@@ -45,6 +45,11 @@ jobs:
       - name: Set executable permissions
         run: chmod +x ${{ github.workspace }}/x86-64/25.12.1/build.sh
 
+      - name: Prepare clean build workspace
+        run: |
+          rm -rf "${{ github.workspace }}/bin"
+          mkdir -p "${{ github.workspace }}/bin"
+
       - name: Validate PPPoE Inputs
         run: |
           if [[ "${{ github.event.inputs.enable_pppoe || 'no' }}" == "yes" ]]; then
@@ -63,7 +68,7 @@ jobs:
           for profile in "${profile_array[@]}"; do
             echo "Building for profile: $profile"
 
-            docker run --rm -i \
+            docker run --rm -i --pull=always \
               --user root \
               -v "${{ github.workspace }}/bin:/home/build/immortalwrt/bin" \
               -v "${{ github.workspace }}/files:/home/build/immortalwrt/files" \
