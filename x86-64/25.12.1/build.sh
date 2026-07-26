@@ -25,6 +25,37 @@ cat /home/build/immortalwrt/files/etc/config/pppoe-settings
 # ImmortalWrt 25.12.1 ImageBuilder 已固定官方 packages/luci/routing/telephony/video feeds，
 # PassWall、HomeProxy、OpenClash、Docker 和 Go 依赖均直接使用官方 feed 版本。
 
+# 只生成 generic-squashfs-combined-efi.img.gz。
+# ImageBuilder 默认会同时创建 ext4、BIOS、qcow2、vdi、vmdk、vhdx 等格式；
+# ROOTFS_PARTSIZE=2048 时每种磁盘格式都会重复写入 2 GiB，耗时和空间开销很大。
+set_kconfig() {
+  local symbol="$1"
+  local value="$2"
+
+  sed -i \
+    -e "/^CONFIG_${symbol}=/d" \
+    -e "/^# CONFIG_${symbol} is not set$/d" \
+    .config
+
+  if [ "$value" = "y" ]; then
+    echo "CONFIG_${symbol}=y" >> .config
+  else
+    echo "# CONFIG_${symbol} is not set" >> .config
+  fi
+}
+
+set_kconfig TARGET_ROOTFS_SQUASHFS y
+set_kconfig TARGET_ROOTFS_EXT4FS n
+set_kconfig TARGET_ROOTFS_TARGZ n
+set_kconfig GRUB_IMAGES n
+set_kconfig GRUB_EFI_IMAGES y
+set_kconfig ISO_IMAGES n
+set_kconfig QCOW2_IMAGES n
+set_kconfig VDI_IMAGES n
+set_kconfig VMDK_IMAGES n
+set_kconfig VHDX_IMAGES n
+set_kconfig TARGET_IMAGES_GZIP y
+
 # iStore 不在 ImmortalWrt 官方 feed 中，使用 LinkEase 官方 APK 仓库和签名公钥。
 ISTORE_APK_BASE="https://istore.istoreos.com/repo-apk"
 ISTORE_APK_KEY="$ISTORE_APK_BASE/istore-apk.pem"
