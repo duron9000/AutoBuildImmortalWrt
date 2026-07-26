@@ -25,6 +25,26 @@ cat /home/build/immortalwrt/files/etc/config/pppoe-settings
 # ImmortalWrt 25.12.1 ImageBuilder 已固定官方 packages/luci/routing/telephony/video feeds，
 # PassWall、HomeProxy、OpenClash、Docker 和 Go 依赖均直接使用官方 feed 版本。
 
+# iStore 不在 ImmortalWrt 官方 feed 中，使用 LinkEase 官方 APK 仓库和签名公钥。
+ISTORE_APK_BASE="https://istore.istoreos.com/repo-apk"
+ISTORE_APK_KEY="$ISTORE_APK_BASE/istore-apk.pem"
+ISTORE_APK_REPOSITORIES="
+$ISTORE_APK_BASE/all/nas_luci/packages.adb
+$ISTORE_APK_BASE/all/store/packages.adb
+$ISTORE_APK_BASE/all/meta/packages.adb
+$ISTORE_APK_BASE/x86_64/nas/packages.adb
+"
+
+mkdir -p keys
+wget -q "$ISTORE_APK_KEY" -O keys/istore.pem
+while IFS= read -r repository; do
+  [ -n "$repository" ] || continue
+  grep -Fqx "repository $repository" repositories ||
+    echo "repository $repository" >> repositories
+done <<EOF
+$ISTORE_APK_REPOSITORIES
+EOF
+
 # 输出调试信息
 echo "$(date '+%Y-%m-%d %H:%M:%S') - 开始构建固件..."
 
@@ -46,6 +66,11 @@ PACKAGES="$PACKAGES luci-app-openclash"
 PACKAGES="$PACKAGES luci-i18n-homeproxy-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
 PACKAGES="$PACKAGES luci-i18n-samba4-zh-cn"
+# iStore 及其后台任务依赖，来自 LinkEase 官方 APK 仓库
+PACKAGES="$PACKAGES luci-app-store"
+PACKAGES="$PACKAGES luci-lib-taskd"
+PACKAGES="$PACKAGES luci-lib-xterm"
+PACKAGES="$PACKAGES taskd"
 # Intel 网卡驱动：
 # I210/I211 -> igb，I217/I218/I219 -> e1000e，I225/I226 -> igc
 PACKAGES="$PACKAGES kmod-igb"

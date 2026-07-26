@@ -28,3 +28,12 @@
 ## 软件包来源
 
 PassWall、HomeProxy、OpenClash、Docker、软件包管理器及其依赖均使用 ImmortalWrt 25.12.1 官方 feeds 中的版本。这样可以让 APK 依赖解析、签名和目标架构保持一致，避免同时混用旧 IPK 仓库。
+
+iStore 不在 ImmortalWrt 官方 feeds 中，因此单独接入 LinkEase 官方 APK 仓库：
+
+- `https://istore.istoreos.com/repo-apk/all/nas_luci/packages.adb`
+- `https://istore.istoreos.com/repo-apk/all/store/packages.adb`
+- `https://istore.istoreos.com/repo-apk/all/meta/packages.adb`
+- `https://istore.istoreos.com/repo-apk/x86_64/nas/packages.adb`
+
+构建时同时下载官方 `istore-apk.pem` 公钥，并安装 `luci-app-store`、`luci-lib-taskd`、`luci-lib-xterm` 和 `taskd`。不再混用旧版 iStore IPK。
