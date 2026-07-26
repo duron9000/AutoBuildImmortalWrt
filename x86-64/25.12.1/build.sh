@@ -39,8 +39,8 @@ mkdir -p keys
 wget -q "$ISTORE_APK_KEY" -O keys/istore.pem
 while IFS= read -r repository; do
   [ -n "$repository" ] || continue
-  grep -Fqx "repository $repository" repositories ||
-    echo "repository $repository" >> repositories
+  grep -Fqx "$repository" repositories ||
+    echo "$repository" >> repositories
 done <<EOF
 $ISTORE_APK_REPOSITORIES
 EOF
